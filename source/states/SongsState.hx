@@ -19,6 +19,7 @@ class SongsState extends FlxState
 	public static var buttonPlay:FlxButton;
 	public static var stars:FlxSprite;
 	public static var imageSong:FlxSprite;
+	var followCamera:FlxObject;
 	public static var chartData:String = "";
 
 	override public function create()
@@ -30,17 +31,21 @@ class SongsState extends FlxState
 		bg = new FlxSprite(0,0);
 		bg.makeGraphic(FlxG.width,FlxG.height);
 		bg.updateHitbox();
+		bg.scrollFactor.set(0,0);
 		add(bg);
 
 		reference = new FlxSprite(0,0,"assets/images/songsstate/reference.png");
+		reference.scrollFactor.set(0,0);
 		add(reference);
 
 		textName = new FlxText(FlxG.width - 900,FlxG.height - 850 ,0,"CHOOSE SONG", 32);
 		textName.font = BackendAssets.font;
+		textName.scrollFactor.set(0,0);
 		add(textName);
 
 		textDescription = new FlxText(FlxG.width - 1100,FlxG.height - 650,0,"CHOOSE SONG", 16);
 		textDescription.font = BackendAssets.font;
+		textDescription.scrollFactor.set(0,0);
 		add(textDescription);
 
 		buttonPlay = new FlxButton(0,0,"",function name() {
@@ -54,6 +59,7 @@ class SongsState extends FlxState
 		buttonPlay.x = 485;
 		buttonPlay.y = 835;
 		buttonPlay.active = false;
+		buttonPlay.scrollFactor.set(0,0);
 		add(buttonPlay);
 
 		imageSong = new FlxSprite(0,0,"assets/images/songsstate/unknown.png");
@@ -61,22 +67,31 @@ class SongsState extends FlxState
 		imageSong.updateHitbox();
 		imageSong.x = FlxG.width - 1100;
 		imageSong.y = FlxG.height - 850;
+		imageSong.scrollFactor.set(0,0);
 		add(imageSong);
 
 		stars = new FlxSprite(FlxG.width - 900 ,FlxG.height - 800,"assets/images/songsstate/1.png");
 		stars.setGraphicSize(250,50);
 		stars.updateHitbox();
+		stars.scrollFactor.set();
 		add(stars);
 
 		groupSongs = new FlxGroup();
 		add(groupSongs);
 
+		followCamera = new FlxObject(0,450,1,1);
+        followCamera.screenCenter(X);
+        add(followCamera);
+
+		FlxG.camera.follow(followCamera,LOCKON,0.5);
+
 		for (key => i in FileSystem.readDirectory("assets/songs"))
 		{
+		
 			var data = File.getContent('assets/songs/$i/main.json');
 			o = Json.parse(data);
 
-			var name = o.name;
+			var name = o.name;	
 			var stars = o.stars;
 			var description = o.description;
 			var color = o.color;
@@ -88,6 +103,7 @@ class SongsState extends FlxState
 
 			var item = new ItemSong(name,stars,description,color,isBackground,isImage,fullPath,Y);
 			groupSongs.add(item);
+			
 		}
 	}
 
@@ -96,6 +112,20 @@ class SongsState extends FlxState
 		super.update(elapsed);
 
 		if (FlxG.keys.justPressed.ESCAPE) { FlxG.camera.fade(FlxColor.BLACK,0.5,false,function name() { FlxG.switchState(MenuState.new);});}
+
+		if (FlxG.keys.justPressed.UP || FlxG.keys.justPressed.W)
+		{
+			followCamera.y -= 200;
+		}
+		if (FlxG.keys.justPressed.DOWN || FlxG.keys.justPressed.S)
+		{	
+			followCamera.y += 200; 
+		}
+
+		if (followCamera.y == 250)
+		{
+			followCamera.y = 450;
+		}
 	}
 	public static function star(star:Int) {
 
@@ -148,7 +178,8 @@ class ItemSong extends FlxSpriteGroup
 		add(imageOverLay);
 
 		image = new FlxSprite(0,0);
-		image.loadGraphic(isImage == false ? "assets/images/songsstate/unknown.png" : '$fulpath/image.png');
+		var bitmapdatai = BitmapData.fromFile('$fulpath/image.png');
+		image.loadGraphic(this.isImage == false ? "assets/images/songsstate/unknown.png" : bitmapdatai );
 		image.setGraphicSize(64,62);
 		image.updateHitbox();
 		image.x = 12;
@@ -163,17 +194,17 @@ class ItemSong extends FlxSpriteGroup
 		star.setGraphicSize(138,27);
 		star.updateHitbox();
 		star.x = 75;
-		star.y = (Y * 87) + 39;
+		star.y = (Y * 85) + 40;
 		add(star);
 
 		buttonHitBox = new FlxButton(0,(Y * 85) + 15,"",function name() { 
 			SongsState.bg.color = FlxColor.fromRGB(colorBackground[0],colorBackground[1],colorBackground[2],colorBackground[3]);
 
 			var bitmapdatab = BitmapData.fromFile('$fulpath/background.png');
-			if (isBackground) {SongsState.bg.loadGraphic(bitmapdatab);}
+			if (this.isBackground) {SongsState.bg.loadGraphic(bitmapdatab); SongsState.bg.setGraphicSize(FlxG.width,FlxG.height); SongsState.bg.updateHitbox();}
 
 			var bitmapdatai = BitmapData.fromFile('$fulpath/image.png');
-			if (isImage) {SongsState.bg.loadGraphic(bitmapdatai);}
+			if (this.isImage) {SongsState.imageSong.loadGraphic(bitmapdatai);}
 
 			imageOverLay.loadGraphic("assets/images/songsstate/itemOverlayOverlaps.png");
 
@@ -181,7 +212,7 @@ class ItemSong extends FlxSpriteGroup
 			SongsState.textDescription.text = this.description;
 			SongsState.star(stars);
 			SongsState.buttonPlay.active = true;
-			SongsState.chartData = '$fulpath/chart.json';
+			SongsState.chartData = '$fulpath';
 		});
 		buttonHitBox.makeGraphic(427,73,FlxColor.TRANSPARENT);
 		add(buttonHitBox);

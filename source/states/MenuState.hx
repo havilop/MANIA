@@ -92,6 +92,10 @@ class MenuState extends FlxState
         add(buttonExit);
         
         FlxG.camera.follow(followCamera,null,0.15);
+
+        FlxG.updateFramerate = 240;
+		FlxG.drawFramerate = 240;
+
         }
     override function update(elapsed:Float) 
     {

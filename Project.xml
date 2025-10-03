@@ -16,7 +16,7 @@
 	<!-- ____________________________ Window Settings ___________________________ -->
 
 	<!--These window settings apply to all targets-->
-	<window width="1600" height="900" fps="60" background="#000000" hardware="true" vsync="false" />
+	<window width="1600" height="900" fps="244" background="#000000" hardware="true" vsync="false" />
 
 	<!--HTML5-specific-->
 	<window if="html5" resizable="true" />
@@ -86,6 +86,9 @@
 	<haxedef name="message.reporting" value="pretty" />
 
 	<!-- _________________________________ Custom _______________________________ -->
-
+        <icon path="icon/icon16.png" size='16'/>
+	<icon path="icon/icon32.png" size='32'/>
+	<icon path="icon/icon64.png" size='64'/>
+	<icon path="icon/iconOG.png" />
 	<!--Place custom nodes like icons here-->
 </project>
