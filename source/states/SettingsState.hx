@@ -6,7 +6,7 @@ import flixel.input.keyboard.FlxKey;
 typedef Se = {
 	var showfps:Bool;
 } 
-class SettingsState extends FlxState
+class SettingsState extends ManiaState
 {
 	var groupKeys:FlxGroup;
 	var buttonGroupKeys:FlxButton;
@@ -24,7 +24,6 @@ class SettingsState extends FlxState
 	{
 		super.create();
 
-		FlxG.camera.flash(FlxColor.BLACK,0.5);
 		var file = File.getContent("assets/data/settings.json");
         o = Json.parse(file);
 
@@ -61,7 +60,7 @@ class SettingsState extends FlxState
 			if (o.showfps)
 			{
 				o.showfps = false;
-				Main.fps.visible = false;	
+				Main.fps.visible = false;
 				buttonBool.loadGraphic(o.showfps == false ? "assets/images/settingsstate/buttonoff.png" : "assets/images/settingsstate/buttonon.png");
 				File.saveContent("assets/data/settings.json", Json.stringify(o, null,""));
 
@@ -92,8 +91,6 @@ class SettingsState extends FlxState
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
-
-		if (FlxG.keys.justPressed.ESCAPE) { FlxG.camera.fade(FlxColor.BLACK,0.5,false,function name() { FlxG.switchState(MenuState.new);});}
 
 		if (ischanging)
 		{
