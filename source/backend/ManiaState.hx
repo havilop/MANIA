@@ -14,9 +14,14 @@ class ManiaState extends FlxState
     override function update(elapsed:Float) {
         super.update(elapsed);
 
-        if (FlxG.keys.justPressed.ESCAPE) 
+        if (FlxG.keys.justPressed.ESCAPE)
         {   var curstate = Type.getClassName(Type.getClass(this));
-            if (curstate != "states.MenuState")
+            if (curstate == "states.ChartingState")
+            {
+                FlxG.sound.music.destroy();
+                Backend.toNextState(MenuState.new);
+            }
+            if (curstate != "states.MenuState" || curstate != "states.ChartingState")
             {
                Backend.toNextState(MenuState.new);
             }

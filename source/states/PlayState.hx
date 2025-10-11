@@ -51,16 +51,14 @@ class PlayState extends FlxState
 
 		for (i in 0...dataChart.chart.length)
 		{
-			
-		}
-		
-		var X = dataChart.note_line == 1 ? 600 : dataChart.note_line == 2 ? 700 : dataChart.note_line == 3 ? 800 : dataChart.note_line == 4 ? 900 : 900;
-		var Y = -1000;
-		var type = dataChart.note_type == "default" ? default_note : default_note;
+		var X = dataChart.chart[i].note_line == 1 ? 600 : dataChart.chart[i].note_line == 2 ? 700 : dataChart.chart[i].note_line == 3 ? 800 : dataChart.chart[i].note_line == 4 ? 900 : 900;
+		var Y = (music.time - (dataChart.chart[i].note_time / 1.2) + 400);
+		var type = dataChart.chart[i].note_type == "default" ? default_note : default_note;
 
 		var note = new Note(X,Y,1,type);
 		note.velocity.y = 1000;
-		notes.add(note);
+		notes.add(note);	
+		}
 	}
 
 	override public function update(elapsed:Float)
@@ -126,8 +124,9 @@ class PlayState extends FlxState
 		var key3h = FlxG.keys.anyPressed([KeyMaster.key(key_3)]);
 		var key4h = FlxG.keys.anyPressed([KeyMaster.key(key_4)]);
 		
-		if (key1h || key2h || key3h || key4h)
+		if (key1 || key2 || key3 || key4)
 		{
+			trace(music.time);
 			notes.forEach(function name(note:Note)
 			{
 				if (key1h)
@@ -136,7 +135,7 @@ class PlayState extends FlxState
 					{
 						
 					}
-				}
+				}	
 				if (key1)
 				{
 				    if (FlxG.overlap(note,arraynotes.note1) && note.isoverlaps && note.type == default_note)
@@ -167,18 +166,6 @@ class PlayState extends FlxState
 				}
 			});
 		}
-
-		if (key1h) { arraynotes.note1.color = 0x00a2ff; }
-		if (!key1h) { arraynotes.note1.color = 0xffffff; }
-
-		if (key2h) { arraynotes.note2.color = 0x00a2ff; }
-		if (!key2h) { arraynotes.note2.color = 0xffffff; }
-
-		if (key3h) { arraynotes.note3.color = 0x00a2ff; }
-		if (!key3h) { arraynotes.note3.color = 0xffffff; }
-
-		if (key4h) { arraynotes.note4.color = 0x00a2ff; }
-		if (!key4h) { arraynotes.note4.color = 0xffffff; }
 
 		if (FlxG.keys.justPressed.ESCAPE)
 		{
@@ -250,6 +237,7 @@ class Note extends FlxSprite
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 		grouplong.update(elapsed);
+
 		isout  = this.inWorldBounds();
 
 			if (FlxG.overlap(this,PlayState.arraynotes))
@@ -260,26 +248,49 @@ class Note extends FlxSprite
 }
 class ArrayNotes extends FlxGroup
 {
-	public var note1:Note;
-	public var note2:Note;
-	public var note3:Note;
-	public var note4:Note;
+	public var note1:FlxSprite;
+	public var note2:FlxSprite;
+	public var note3:FlxSprite;
+	public var note4:FlxSprite;
 
 	public function new() {
 
 		super();
 
-		note1 = new Note(600,800,1,default_note);
+		note1 = new FlxSprite(600,800,Backend.Path("playstate","arrow.png"));
 		add(note1);
 
-		note2 = new Note(700,800,2,default_note);
+		
+		note2 = new FlxSprite(700,800,Backend.Path("playstate","arrow.png"));
 		add(note2);
 
-		note3 = new Note(800,800,3,default_note);
+		
+		note3 = new FlxSprite(800,800,Backend.Path("playstate","arrow.png"));
 		add(note3);
 
-		note4 = new Note(900,800,4,default_note);
+		
+		note4 = new FlxSprite(900,800,Backend.Path("playstate","arrow.png"));
 		add(note4);
+	}
+	override function update(elapsed:Float) {
+		super.update(elapsed);
+
+		var key1h = FlxG.keys.anyPressed([KeyMaster.key(key_1)]);
+		var key2h = FlxG.keys.anyPressed([KeyMaster.key(key_2)]);
+		var key3h = FlxG.keys.anyPressed([KeyMaster.key(key_3)]);
+		var key4h = FlxG.keys.anyPressed([KeyMaster.key(key_4)]);
+
+		if (key1h) { note1.color = 0x00a2ff; }
+		if (!key1h) {note1.color = 0xffffff; }
+
+		if (key2h) { note2.color = 0x00a2ff; }
+		if (!key2h) { note2.color = 0xffffff; }
+
+		if (key3h) { note3.color = 0x00a2ff; }
+		if (!key3h) { note3.color = 0xffffff; }
+
+		if (key4h) { note4.color = 0x00a2ff; }
+		if (!key4h) {note4.color = 0xffffff; }
 	}
 	
 }

@@ -14,7 +14,10 @@ class MenuState extends ManiaState
     var logo:FlxSprite;
     var textVerison:FlxText;
 
-    var itemsArray:Array<String> = ["songs","settings","exit"];
+    var itemsArray:Array<String> = ["songs","settings","charting","exit"];
+
+    var ccamera:FlxSprite;
+    var center:FlxObject;
 
     override function create() 
     {
@@ -22,6 +25,10 @@ class MenuState extends ManiaState
         FlxG.autoPause = false;
 
         super.create();
+
+        center = new FlxObject(0,0,1,1);
+        center.screenCenter(XY);
+        add(center);
 
         bg = new FlxSprite(0,0,Backend.Path("menustate","bg.png"));
         bg.updateHitbox();
@@ -46,10 +53,22 @@ class MenuState extends ManiaState
         FlxG.updateFramerate = 240;
 		FlxG.drawFramerate = 240;
 
+            ccamera = new FlxSprite(0,0);
+        ccamera.makeGraphic(20,20);
+        ccamera.screenCenter(XY);
+        ccamera.visible = false;
+        trace(ccamera.x,ccamera.y);
+        add(ccamera);
+
+        FlxG.camera.follow(ccamera,null,0.5);
+
         }
     override function update(elapsed:Float) 
     {
         super.update(elapsed);
+       // var angle = Math.atan2(FlxG.mouse.y - center.y,FlxG.mouse.x - center.x);
+       // ccamera.x = Math.cos(angle) * 1000;
+      //  ccamera.y = Math.sin(angle) * 1000;
 
     }
     public static function FunctionItem(name:String) 
@@ -62,6 +81,8 @@ class MenuState extends ManiaState
                 Backend.toNextState(SongsState.new);
             case "settings":
                 Backend.toNextState(SettingsState.new);
+            case "charting":
+                Backend.toNextState(ChartingState.new);
         }    
     }
 }
@@ -74,6 +95,7 @@ class ItemMenu extends FlxSpriteGroup
     public function new(name:String,Y:Float) 
     {
         super(0,0);
+        this.scrollFactor.set(0,0);
 
         this.nname = name;
 
