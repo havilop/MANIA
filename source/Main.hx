@@ -6,6 +6,7 @@ import openfl.display.Sprite;
 import states.*;
 typedef See = {
     var showfps:Bool;
+	var FPS:Int;
 } 
 class Main extends Sprite
 {
@@ -18,6 +19,9 @@ class Main extends Sprite
 
 		var file = File.getContent("assets/data/settings.json");
         o = Json.parse(file);
+
+		FlxG.updateFramerate = o.FPS;
+		FlxG.drawFramerate = o.FPS;
 
 		fps = new FPS(0,0,FlxColor.WHITE);
         fps.visible = o.showfps == false ? false : o.showfps == true ? true : true;

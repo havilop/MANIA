@@ -50,9 +50,6 @@ class MenuState extends ManiaState
             add(item);
         }
 
-        FlxG.updateFramerate = 240;
-		FlxG.drawFramerate = 240;
-
             ccamera = new FlxSprite(0,0);
         ccamera.makeGraphic(20,20);
         ccamera.screenCenter(XY);

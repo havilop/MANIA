@@ -46,8 +46,7 @@ class PlayState extends FlxState
 	{
 		var dataChart = Json.parse(File.getContent(data + '/chart.json'));
 
-		music = FlxG.sound.play(data + '/music.ogg');
-		music.play();
+		music = FlxG.sound.play(data + "/music.ogg");
 
 		for (i in 0...dataChart.chart.length)
 		{
@@ -126,7 +125,6 @@ class PlayState extends FlxState
 		
 		if (key1 || key2 || key3 || key4)
 		{
-			trace(music.time);
 			notes.forEach(function name(note:Note)
 			{
 				if (key1h)
@@ -177,7 +175,6 @@ class PlayState extends FlxState
 	     }
 	function hitNote(note:Note)
 	{
-		trace(note.id);
 		note.kill();
 	}
 	public static function clearDataSong() 

@@ -4,6 +4,7 @@ import openfl.display.BitmapData;
 
 class ManiaState extends FlxState 
 {
+
     override function create() {
         super.create();
 
@@ -14,17 +15,21 @@ class ManiaState extends FlxState
     override function update(elapsed:Float) {
         super.update(elapsed);
 
+		var curstate = Type.getClassName(Type.getClass(this));
+
         if (FlxG.keys.justPressed.ESCAPE)
-        {   var curstate = Type.getClassName(Type.getClass(this));
+        {  
             if (curstate == "states.ChartingState")
             {
                 FlxG.sound.music.destroy();
                 Backend.toNextState(MenuState.new);
-            }
-            if (curstate != "states.MenuState" || curstate != "states.ChartingState")
+            } else if (curstate == "states.MenuState") 
             {
-               Backend.toNextState(MenuState.new);
+                
+            } else {
+                Backend.toNextState(MenuState.new);
             }
+
         }
 
     }

@@ -3,5 +3,6 @@
 	"key_2": "F",
 	"key_3": "J",
 	"key_4": "K",
-	"showfps": false
+	"showfps": false,
+	"FPS": 60
 }

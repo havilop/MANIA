@@ -150,7 +150,8 @@ class ItemSong extends FlxSpriteGroup
 	var star:FlxSprite;
 	var buttonHitBox:FlxButton;
 	var imageOverLay:FlxSprite;
-
+	var isOverlaps:Bool = false;
+	 
 	public function new(s:String,e:Int,x:String,c:Array<Int>,f:Bool,z:Bool,fulpath:String,Y:Float) {
 		super(0,0);
 
@@ -190,10 +191,11 @@ class ItemSong extends FlxSpriteGroup
 
 			var bitmapdatab = BitmapData.fromFile('$fulpath/background.png');
 			if (this.isBackground) {SongsState.bg.loadGraphic(bitmapdatab); SongsState.bg.setGraphicSize(FlxG.width,FlxG.height); SongsState.bg.updateHitbox();}
+			if (!this.isBackground) { SongsState.bg.makeGraphic(FlxG.width,FlxG.height); SongsState.bg.updateHitbox();}
 
 			var bitmapdatai = BitmapData.fromFile('$fulpath/image.png');
-			if (this.isImage) {SongsState.imageSong.loadGraphic(bitmapdatai);}
-
+			if (this.isImage) {SongsState.imageSong.loadGraphic(bitmapdatai); SongsState.imageSong.setGraphicSize(166,165);SongsState.imageSong.updateHitbox();}
+			if (!this.isImage) {SongsState.imageSong.loadGraphic(Backend.Path("songsstate","unknown.png")); SongsState.imageSong.setGraphicSize(166,165);SongsState.imageSong.updateHitbox();}
 			imageOverLay.loadGraphic("assets/images/songsstate/itemOverlayOverlaps.png");
 
 			SongsState.textName.text = this.name;
@@ -204,12 +206,22 @@ class ItemSong extends FlxSpriteGroup
 			SongsState.chartData = '$fulpath';
 		});
 		buttonHitBox.onOver.callback = function name() {
-			imageOverLay.setGraphicSize(450,75);
+			if (isOverlaps == false)
+			{
+
+			Backend.playScroll();
+			imageOverLay.setGraphicSize(450,73);
 			imageOverLay.updateHitbox();
+
+			}
+
+			isOverlaps = true;
 		}
 		buttonHitBox.onOut.callback = function name() {
 			imageOverLay.setGraphicSize(427,73);
 			imageOverLay.updateHitbox();
+
+			isOverlaps = false;
 		}
 		buttonHitBox.makeGraphic(427,73,FlxColor.TRANSPARENT);
 		add(buttonHitBox);
