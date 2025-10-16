@@ -1,5 +1,8 @@
 package states;
 
+import backend.Skin.EnumSkin;
+import backend.ClientData.EnumClient;
+import flixel.math.FlxMath;
 import flixel.system.FlxAssets.FlxSoundAsset;
 import openfl.Assets;
 import openfl.display.Bitmap;
@@ -51,12 +54,13 @@ class PlayState extends FlxState
 		for (i in 0...dataChart.chart.length)
 		{
 		var X = dataChart.chart[i].note_line == 1 ? 600 : dataChart.chart[i].note_line == 2 ? 700 : dataChart.chart[i].note_line == 3 ? 800 : dataChart.chart[i].note_line == 4 ? 900 : 900;
-		var Y = (music.time - (dataChart.chart[i].note_time / 1.2) + 400);
+		var Y = ClientData.getData(scroll) == "down" ? (arraynotes.note1.y + (music.time - dataChart.chart[i].note_time) * (0.45 * FlxMath.roundDecimal(ClientData.getData(speed),2))) : (arraynotes.note1.y - (music.time - dataChart.chart[i].note_time) * (0.45 * FlxMath.roundDecimal(ClientData.getData(speed),2)));
 		var type = dataChart.chart[i].note_type == "default" ? default_note : default_note;
+		var id = dataChart.chart[i].note_line;
 
-		var note = new Note(X,Y,1,type);
-		note.velocity.y = 1000;
-		notes.add(note);	
+		var note = new Note(X,Y,id,type);
+		note.velocity.y = ClientData.getData(scroll) == "down" ?  ClientData.getData(speed) * 475 :  ClientData.getData(speed) * -475 ;
+		notes.add(note);
 		}
 	}
 
@@ -198,42 +202,32 @@ class Note extends FlxSprite
 	public var grouplong:FlxTypedGroup<Note>;
 
 	public function new(X:Float,Y:Float,ID:Int,typenote:EnumNote,?long:Int) {
-		super(X,Y,"assets/images/playstate/arrow.png");
-		super.updateHitbox();
+		super(0,0,null);
 		this.id = ID;
 		this.type = typenote;
 		this.long = long;
 
-        grouplong = new FlxTypedGroup<Note>();
+		var name = "note" + id;
 
-		switch (type)
+		for (i in EnumSkin.getConstructors())
 		{
-			case default_note:
-				super(X,Y,"assets/images/playstate/arrow.png");
-			case longSec_note:
-				super(X,Y,"assets/images/playstate/longcircle2.png");
-			case long_note:
-				super(X,Y,"assets/images/playstate/long.png");
-
-				for (i in 1...long)
-				{
-
-				var note = new Note(X,Y - 100 * i,ID,longSec_note);
-				note.velocity.y = 1000;
-				grouplong.add(note);
-			
-				}
-
+			if (i == name)
+			{
+				var sex = Type.createEnum(EnumSkin,name);
+				this.loadGraphic(Skin.getAsset(sex));
+				this.setGraphicSize(100,100);
+				this.updateHitbox();
+			}
 		}
 
+		this.x = X;
+		this.y = Y;
 	}
 	override function draw() {
 		super.draw();
-		grouplong.draw();
 	}
 	override function update(elapsed:Float) {
 		super.update(elapsed);
-		grouplong.update(elapsed);
 
 		isout  = this.inWorldBounds();
 
@@ -254,20 +248,39 @@ class ArrayNotes extends FlxGroup
 
 		super();
 
-		note1 = new FlxSprite(600,800,Backend.Path("playstate","arrow.png"));
+		note1 = new FlxSprite(0,0,null);
+		note1.loadGraphic(Skin.getAsset(notearray1));
+		note1.setGraphicSize(100,100);
+		note1.updateHitbox();
+		note1.x = 600;
+		note1.y = ClientData.getData(scroll) == "down" ? 800 : 0;
 		add(note1);
 
-		
-		note2 = new FlxSprite(700,800,Backend.Path("playstate","arrow.png"));
+		note2 = new FlxSprite(0,0,null);
+		note2.loadGraphic(Skin.getAsset(notearray2));
+		note2.setGraphicSize(100,100);
+		note2.updateHitbox();
+		note2.x = 700;
+		note2.y = ClientData.getData(scroll) == "down" ? 800 : 0;
 		add(note2);
 
-		
-		note3 = new FlxSprite(800,800,Backend.Path("playstate","arrow.png"));
+		note3 = new FlxSprite(0,0,null);
+		note3.loadGraphic(Skin.getAsset(notearray3));
+		note3.setGraphicSize(100,100);
+		note3.updateHitbox();
+		note3.x = 800;
+		note3.y = ClientData.getData(scroll) == "down" ? 800 : 0;
 		add(note3);
 
-		
-		note4 = new FlxSprite(900,800,Backend.Path("playstate","arrow.png"));
+		note4 = new FlxSprite(0,0,null);
+		note4.loadGraphic(Skin.getAsset(notearray4));
+		note4.setGraphicSize(100,100);
+		note4.updateHitbox();
+		note4.x = 900;
+		note4.y = ClientData.getData(scroll) == "down" ? 800 : 0;
 		add(note4);
+
+
 	}
 	override function update(elapsed:Float) {
 		super.update(elapsed);
@@ -277,17 +290,38 @@ class ArrayNotes extends FlxGroup
 		var key3h = FlxG.keys.anyPressed([KeyMaster.key(key_3)]);
 		var key4h = FlxG.keys.anyPressed([KeyMaster.key(key_4)]);
 
-		if (key1h) { note1.color = 0x00a2ff; }
-		if (!key1h) {note1.color = 0xffffff; }
+		if (key1h) 
+		{ 
+		note1.loadGraphic(Skin.getAsset(notepressed1));
+		note1.setGraphicSize(100,100);
+		note1.updateHitbox();
+	    }
+		if (!key1h) { 
+		note1.loadGraphic(Skin.getAsset(notearray1));
+		note1.setGraphicSize(100,100);
+		note1.updateHitbox();
+		}
 
-		if (key2h) { note2.color = 0x00a2ff; }
-		if (!key2h) { note2.color = 0xffffff; }
+		if (key2h) { note2.loadGraphic(Skin.getAsset(notepressed2));
+		note2.setGraphicSize(100,100);
+		note2.updateHitbox(); }
+		if (!key2h) { note2.loadGraphic(Skin.getAsset(notearray2));
+		note2.setGraphicSize(100,100);
+		note2.updateHitbox();}
 
-		if (key3h) { note3.color = 0x00a2ff; }
-		if (!key3h) { note3.color = 0xffffff; }
+		if (key3h) { note3.loadGraphic(Skin.getAsset(notepressed3));
+		note3.setGraphicSize(100,100);
+		note3.updateHitbox(); }
+		if (!key3h) { note3.loadGraphic(Skin.getAsset(notearray3));
+		note3.setGraphicSize(100,100);
+		note3.updateHitbox(); }
 
-		if (key4h) { note4.color = 0x00a2ff; }
-		if (!key4h) {note4.color = 0xffffff; }
+		if (key4h) { note4.loadGraphic(Skin.getAsset(notepressed4));
+		note4.setGraphicSize(100,100);
+		note4.updateHitbox(); }
+		if (!key4h) {note4.loadGraphic(Skin.getAsset(notearray4));
+		note4.setGraphicSize(100,100);
+		note4.updateHitbox(); }
 	}
 	
 }

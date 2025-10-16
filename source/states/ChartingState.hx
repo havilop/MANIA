@@ -3,9 +3,6 @@ package states;
 import states.PlayState.ArrayNotes;
 
 typedef ChartData = {
-    // var note_time:Float;
-    // var note_line:Float;
-    // var note_type:String;
      var chart:Array<{note_time:Float,note_line:Float,note_type:String}>;
 } 
 class ChartingState extends ManiaState 

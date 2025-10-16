@@ -15,7 +15,7 @@ class Main extends Sprite
 	public function new()
 	{
 		super();
-		addChild(new FlxGame(0, 0, MenuState));
+		addChild(new FlxGame(0, 0, MenuState,60,60,true,true));
 
 		var file = File.getContent("assets/data/settings.json");
         o = Json.parse(file);

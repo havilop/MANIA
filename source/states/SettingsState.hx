@@ -4,7 +4,6 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase.EaseFunction;
 import backend.KeyMaster.Key;
-import backend.KeyMaster.KeysMaster;
 import flixel.input.keyboard.FlxKey;
 typedef Se = {
 	var showfps:Bool;
@@ -15,6 +14,7 @@ class SettingsState extends ManiaState
 	var KEYS:FlxGroup;
 	var background:FlxSprite;
 	var GENERAL:FlxGroup;
+	var GAMEPLAY:FlxGroup;
 	var textChanging:FlxText;
 
 	public static var setVisible:Bool = false;
@@ -23,14 +23,33 @@ class SettingsState extends ManiaState
 	public static var ischanging:Bool = false;
 	public static var name_key:String = "";
 	var o:Se;
+	public static var listSkins:Array<String> = ["default","arrows"];
 	public static var groups:Array<String> = ["KEYS","GENERAL","GAMEPLAY"];
 
 	var generalItems = ["Show Fps/Bool","FPS/Value"];
-	var gameplayItems = ["Notes scroll/Value","Notes speed/Value","Notes skin/Value"];
-
+	var gameplayItems = ["Note scroll/Value","Note speed/Value","Note skin/Value"];
+	public static function updateList() 
+    {
+        listSkins = [];
+        for (i in FileSystem.readDirectory("assets/skins"))
+        {
+            var currentSkin:String = "";
+            currentSkin = ClientData.getData(skin);
+            listSkins.push(i);
+            listSkins.sort(function name(a,b) {
+                 if (a == currentSkin) return -1;
+                 if (b == currentSkin) return 1;
+    
+                return a < b ? -1 : (a > b ? 1 : 0);  
+            });
+			trace(listSkins);
+         }
+    }
 	override public function create()
 	{
 		super.create();
+
+		updateList();
 
 		var file = File.getContent("assets/data/settings.json");
         o = Json.parse(file);
@@ -63,10 +82,23 @@ class SettingsState extends ManiaState
 
 			var name = list[0];
 			var type = list[1];
-			trace(name,type);
 
 			var item = new ItemSettings(name,key,type);
 			GENERAL.add(item);
+		}
+
+		GAMEPLAY = new FlxGroup();
+		add(GAMEPLAY);
+
+		for (key => i in gameplayItems)
+		{
+			var list = i.split("/");
+
+			var name = list[0];
+			var type = list[1];
+
+			var item = new ItemSettings(name,key,type);
+			GAMEPLAY.add(item);
 		}
 
 		background = new FlxSprite(0,0).makeGraphic(FlxG.width,FlxG.height,FlxColor.fromRGB(0,0,0,200));
@@ -199,23 +231,25 @@ class ItemKey extends FlxSpriteGroup
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-			switch (this.name)
-		{
-			case "key_1":
-				textValueKey = KeyMaster.key(key_1);
-			case "key_2":
-				textValueKey = KeyMaster.key(key_2);
-			case "key_3":
-				textValueKey = KeyMaster.key(key_3);
-			case "key_4":
-				textValueKey = KeyMaster.key(key_4);
-		}
+		getNameKey(this.name);
+
 		var value = textValueKey;
 
 		textNameKey.text = this.name + ': $value';
 		buttonChange.x = textNameKey.x + textNameKey.fieldWidth;
 
 	}
+	function getNameKey(name:String) 
+		{
+			for (i in Key.getConstructors())
+			{
+				if (i == name)
+				{
+					var sex = Type.createEnum(Key,i);
+					textValueKey = KeyMaster.key(sex);
+				}
+			}
+		}
 
 }
 class ItemGroup extends FlxSpriteGroup 
@@ -272,6 +306,16 @@ class ItemSettings extends FlxSpriteGroup
 		text.font = Backend.font;
 		add(text);
 
+		onValueUpdate = function nasme() {
+			
+		}
+		onMinus = function nasme() {
+			
+		}
+		onPlus = function nasme() {
+			
+		}
+
 		switch (name)
 		{
 			case "Show Fps":
@@ -313,6 +357,99 @@ class ItemSettings extends FlxSpriteGroup
 			onValueUpdate = function name() {
 				textValue.text = "" + o.FPS;
 			}
+			case "Note speed":
+				onMinus = function name() {
+
+					var value:Dynamic = "";
+
+					value = ClientData.getData(speed);
+
+					value = value <= 1.0 ? value = 1.0 : value -= 0.1;
+
+					ClientData.toSave(speed,value);
+
+				
+				}
+				onPlus = function name() {
+					
+					var value:Dynamic = "";
+
+					value = ClientData.getData(speed);
+
+					value = value >= 3.0 ? value = 3.0 : value += 0.1;
+
+					ClientData.toSave(speed,value);
+				}
+				onValueUpdate = function name() {
+					textValue.text = "" + ClientData.getData(speed);
+				}
+			case "Note scroll":
+				onMinus = function name() {
+					var value:Dynamic = "";
+
+					value = ClientData.getData(scroll);
+
+					value = value == "up" ? value = "down" : value = "up";
+
+					ClientData.toSave(scroll,value);
+				}
+				onPlus = function name() {
+
+					var value:Dynamic = "";
+
+					value = ClientData.getData(scroll);
+
+					value = value == "down" ? value = "up" : value = "down";
+
+					ClientData.toSave(scroll,value);
+				}
+				onValueUpdate = function name() {	
+					textValue.text = ClientData.getData(scroll);
+				}
+			case "Note skin":
+				onValueUpdate = function name() {
+					textValue.text = ClientData.getData(skin);
+				}
+				onMinus = function name() {
+					var value:Dynamic = "";
+
+					value = ClientData.getData(skin);
+
+					for (key => i in SettingsState.listSkins)
+					{
+						trace(key);
+
+						if (i == value)
+						{
+							
+							if (SettingsState.listSkins[key] != SettingsState.listSkins[0])
+							{
+							   value = SettingsState.listSkins[key - 1];
+							   ClientData.toSave(skin,value);
+							}
+							break;
+						} 
+					}
+					
+				}
+				onPlus = function name() {
+					var value:Dynamic = "";
+
+					value = ClientData.getData(skin);
+
+					for (key => i in SettingsState.listSkins)
+					{
+						if (i == value)
+						{
+							if (SettingsState.listSkins[key] != SettingsState.listSkins[SettingsState.listSkins.length - 1])
+							{
+							   value = SettingsState.listSkins[key + 1];
+							   ClientData.toSave(skin,value);
+							}
+							break;
+						}
+					}
+				}
 		}
 
 		switch (type)

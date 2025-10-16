@@ -1,0 +1,27 @@
+{
+	"UseDifferent": false,
+
+		"note": "note1.png",
+		"notearray": "notearray1.png",
+		"notepressed": "notepressed1.png",
+		
+		"long": "long.png",
+	    "longmid": "longmid.png",
+	    "longend": "longend.png",
+	
+	"note1": "note1.png",
+	"note2": "note2.png",
+	"note3": "note3.png",
+	"note4": "note4.png",
+	
+	"notearray1": "notearray1.png",
+	"notearray2": "notearray2.png",
+	"notearray3": "notearray3.png",
+	"notearray4": "notearray4.png",
+	
+	"notepressed1": "notepressed1",
+	"notepressed2": "notepressed2",
+	"notepressed3": "notepressed3",
+	"notepressed4": "notepressed4"
+	
+}
