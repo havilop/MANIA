@@ -3,6 +3,7 @@ enum EnumClient {
     speed;
     scroll;
     skin;
+    statistics;
 }
 class ClientData 
 {

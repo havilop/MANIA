@@ -8,5 +8,6 @@
 	"speed": 1.0,
 	"key_RestartSong": "NINE",
 	"scroll": "down",
-	"skin": "default"
+	"skin": "default",
+	"statistics": true
 }

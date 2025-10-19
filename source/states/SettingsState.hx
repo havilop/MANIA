@@ -27,7 +27,7 @@ class SettingsState extends ManiaState
 	public static var groups:Array<String> = ["KEYS","GENERAL","GAMEPLAY"];
 
 	var generalItems = ["Show Fps/Bool","FPS/Value"];
-	var gameplayItems = ["Note scroll/Value","Note speed/Value","Note skin/Value"];
+	var gameplayItems = ["Note scroll/Value","Note speed/Value","Note skin/Value","Show statistics/Bool"];
 	public static function updateList() 
     {
         listSkins = [];
@@ -111,40 +111,9 @@ class SettingsState extends ManiaState
 		textChanging.screenCenter(XY);
 		add(textChanging);
 
-		SetVisibleGroup('KEYS');
+		Backend.SetVisibleGroup('KEYS',groups,this);
 
 	}
-		public function SetVisibleGroup(group:String) 
-	{
-			for (i in groups)
-			{
-				if (i == group)
-				{
-					var field = Reflect.field(this, group);
-
-                    if (field != null && Std.isOfType(field, FlxGroup))
-                    {
-                      var group:FlxGroup = cast field;
-                      for (i in group)
-					  {
-						i.visible = true;
-					  }
-                    }
-				}
-				else {
-					var field = Reflect.field(this, i);
-
-                    if (field != null && Std.isOfType(field, FlxGroup))
-                    {
-                      var group:FlxGroup = cast field;
-                      for (i in group)
-					  {
-						i.visible = false;
-					  }
-                    }
-				}
-			}
-    } 
 
 	override public function update(elapsed:Float)
 	{
@@ -188,7 +157,7 @@ class SettingsState extends ManiaState
 		}
 		if (setVisible)
 		{
-			SetVisibleGroup(setVisiblename);
+			Backend.SetVisibleGroup(setVisiblename,groups,this);
 			setVisible = false;
 		}
 	}
@@ -430,7 +399,6 @@ class ItemSettings extends FlxSpriteGroup
 							break;
 						} 
 					}
-					
 				}
 				onPlus = function name() {
 					var value:Dynamic = "";
@@ -449,6 +417,31 @@ class ItemSettings extends FlxSpriteGroup
 							break;
 						}
 					}
+				}
+			case "Show statistics":
+				onBool = function name() {
+				var value;
+
+				value = ClientData.getData(statistics);
+
+			if (value)
+			{
+				ClientData.toSave(statistics,false);
+				buttonBool.loadGraphic(value == false ? "assets/images/settingsstate/buttonoff.png" : "assets/images/settingsstate/buttonon.png");
+				
+			} else if (value == false)
+			{
+				ClientData.toSave(statistics,true);
+				buttonBool.loadGraphic(value == false ? "assets/images/settingsstate/buttonoff.png" : "assets/images/settingsstate/buttonon.png");
+			}
+				}
+				onBoolUpdate = function name() {
+
+					var value;
+
+				    value = ClientData.getData(statistics);
+
+					buttonBool.loadGraphic(value == false ? "assets/images/settingsstate/buttonoff.png" : "assets/images/settingsstate/buttonon.png");
 				}
 		}
 

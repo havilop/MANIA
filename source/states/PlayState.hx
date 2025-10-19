@@ -19,22 +19,24 @@ class PlayState extends FlxState
 	var storedvalue:Float;
 	
 	public static var music:FlxSound;
-	var textMisses:FlxText;
 
 	public static var nameMusic:String = '';
 
 	var score:Int = 0;
 	var misses:Int = 0;
-	var accuracy:Float = 100;
-	var combo:Int = 0;	
+	var combo:Int = 0;
 
+	var best:Int = 0;
+	var good:Int = 0;
+	var bad:Int = 0;
+	var worst:Int = 0;
+
+	public static var listNoteStatus:Array<String> = ["BEST/0/25","GOOD/26/45","BAD/46/75","WORST/76/100"];
+	var listStatistics:Array<String> = ["SCORE","MISSES","COMBO"];
 
 	override public function create()
 	{
 		super.create();
-
-		textMisses = new FlxText(0,0,0,'',16);
-		add(textMisses);
 
 		arraynotes = new ArrayNotes();
 		add(arraynotes);
@@ -42,7 +44,10 @@ class PlayState extends FlxState
 		notes = new FlxTypedGroup<Note>();
 		add(notes);
 
+		
 		generateSong();
+		if (ClientData.getData(statistics)) {generateStatistics();}
+
 
 	}
 	function generateSong() 
@@ -50,6 +55,10 @@ class PlayState extends FlxState
 		var dataChart = Json.parse(File.getContent(data + '/chart.json'));
 
 		music = FlxG.sound.play(data + "/music.ogg");
+		music.onComplete = function name() {
+			PlayState.clearDataSong();
+			Backend.toNextState(SongsState.new);
+		}
 
 		for (i in 0...dataChart.chart.length)
 		{
@@ -59,50 +68,30 @@ class PlayState extends FlxState
 		var id = dataChart.chart[i].note_line;
 
 		var note = new Note(X,Y,id,type);
-		note.velocity.y = ClientData.getData(scroll) == "down" ?  ClientData.getData(speed) * 475 :  ClientData.getData(speed) * -475 ;
+		note.time = dataChart.chart[i].note_time;
+		note.velocity.y = ClientData.getData(scroll) == "down" ?  ClientData.getData(speed) * 455 :  ClientData.getData(speed) * -455 ;
 		notes.add(note);
 		}
 	}
-
+	function generateStatistics() 
+	{
+		for (key => i in listNoteStatus)
+		{
+			var list = i.split("/");
+			
+			var item = new ItemStat(key,list[0],this,"status");
+			add(item);
+		}
+		for (key => i in listStatistics)
+		{
+			var item = new ItemStat(key,i,this,"def");
+			add(item);           
+		}
+	}
 	override public function update(elapsed:Float)
 	{
 
-		storedvalue += elapsed;
-
-	/*	if (storedvalue >= 0.5)
-		{
-			var note = new Note(600,-2000,1,long_note,3);
-			note.velocity.y = 1000;
-			notes.add(note);
-			storedvalue = 0;
-
-			var note = new Note(700,0,2,default_note);
-			note.velocity.y = 1000;
-			note.y = -2000;
-			notes.add(note);
-			storedvalue = 0;
-
-			var note = new Note(800,0,3,default_note);
-			note.velocity.y = 1000;
-			note.y = -2000;
-			notes.add(note);
-			storedvalue = 0;
-
-			var note = new Note(900,0,4,default_note);
-			note.velocity.y = 1000;
-			note.y = -2000;
-			notes.add(note);
-			storedvalue = 0;
-		} */
-
 		super.update(elapsed);
-
-		music.onComplete = function name() {
-			PlayState.clearDataSong();
-			Backend.toNextState(SongsState.new);
-		}
-
-		textMisses.text = misses + '';
 
 		notes.forEachAlive(function name(note:Note) {			
 				if (!note.isout && note.isoverlaps) {missNote(note);}
@@ -112,6 +101,7 @@ class PlayState extends FlxState
 
 	}
 	function missNote(note:Note) {
+		combo = 0;
 		misses += 1;
 		note.kill();
 	}
@@ -142,28 +132,28 @@ class PlayState extends FlxState
 				{
 				    if (FlxG.overlap(note,arraynotes.note1) && note.isoverlaps && note.type == default_note)
 				    {
-					hitNote(note);
+					hitNote(note,note.y);
 				    }
 				}
 				if (key2)
 				{
 					if (FlxG.overlap(note,arraynotes.note2) && note.isoverlaps)
 				    {
-					hitNote(note);
+					hitNote(note,note.y);
 				    }
 				}
 				if (key3)
 				{
 					if (FlxG.overlap(note,arraynotes.note3) && note.isoverlaps)
 				    {
-					hitNote(note);
+					hitNote(note,note.y);
 				    }
 				}
 				if (key4)
 				{
 					if (FlxG.overlap(note,arraynotes.note4) && note.isoverlaps)
 				    {
-					hitNote(note);
+					hitNote(note,note.y);
 				    }
 				}
 			});
@@ -177,9 +167,31 @@ class PlayState extends FlxState
 		}
 			
 	     }
-	function hitNote(note:Note)
+	function hitNote(note:Note,notey:Float)
 	{
-		note.kill();
+		if (785 <= notey)
+		{
+			combo ++;
+			best ++;
+		    note.kill();
+		} else if (750 <= notey)
+		{
+			combo ++;
+			good ++;
+		    note.kill();
+		} else if (725 <= notey)
+		{
+			combo ++;
+			bad ++;
+		    note.kill();
+		} else if (700 <= notey)
+		{
+			combo ++;
+			worst ++;
+		    note.kill();
+		}
+		
+
 	}
 	public static function clearDataSong() 
 	{
@@ -199,6 +211,7 @@ class Note extends FlxSprite
 	public var isout:Bool = false;
 	public var type:EnumNote;
 	public var long:Int = 3;
+	public var time:Float = 0;
 	public var grouplong:FlxTypedGroup<Note>;
 
 	public function new(X:Float,Y:Float,ID:Int,typenote:EnumNote,?long:Int) {
@@ -243,6 +256,10 @@ class ArrayNotes extends FlxGroup
 	public var note2:FlxSprite;
 	public var note3:FlxSprite;
 	public var note4:FlxSprite;
+	var wasPressed:Bool = false;
+	var wasPressed2:Bool = false;
+	var wasPressed3:Bool = false;
+	var wasPressed4:Bool = false;
 
 	public function new() {
 
@@ -295,33 +312,78 @@ class ArrayNotes extends FlxGroup
 		note1.loadGraphic(Skin.getAsset(notepressed1));
 		note1.setGraphicSize(100,100);
 		note1.updateHitbox();
+		wasPressed = true;
 	    }
-		if (!key1h) { 
+		if (!key1h && wasPressed) { 
 		note1.loadGraphic(Skin.getAsset(notearray1));
 		note1.setGraphicSize(100,100);
 		note1.updateHitbox();
+		wasPressed = false;
 		}
 
 		if (key2h) { note2.loadGraphic(Skin.getAsset(notepressed2));
 		note2.setGraphicSize(100,100);
-		note2.updateHitbox(); }
-		if (!key2h) { note2.loadGraphic(Skin.getAsset(notearray2));
+		note2.updateHitbox(); wasPressed2 = true;}
+
+		if (!key2h && wasPressed2) { note2.loadGraphic(Skin.getAsset(notearray2));
 		note2.setGraphicSize(100,100);
-		note2.updateHitbox();}
+		note2.updateHitbox(); wasPressed2 = false;}
 
 		if (key3h) { note3.loadGraphic(Skin.getAsset(notepressed3));
 		note3.setGraphicSize(100,100);
-		note3.updateHitbox(); }
-		if (!key3h) { note3.loadGraphic(Skin.getAsset(notearray3));
+		note3.updateHitbox();wasPressed3 = true; }
+
+		if (!key3h && wasPressed3) { note3.loadGraphic(Skin.getAsset(notearray3));
 		note3.setGraphicSize(100,100);
-		note3.updateHitbox(); }
+		note3.updateHitbox(); wasPressed3 = false;}
 
 		if (key4h) { note4.loadGraphic(Skin.getAsset(notepressed4));
 		note4.setGraphicSize(100,100);
-		note4.updateHitbox(); }
-		if (!key4h) {note4.loadGraphic(Skin.getAsset(notearray4));
+		note4.updateHitbox(); wasPressed4 = true;}
+
+		if (!key4h && wasPressed4) {note4.loadGraphic(Skin.getAsset(notearray4));
 		note4.setGraphicSize(100,100);
-		note4.updateHitbox(); }
+		note4.updateHitbox(); wasPressed4 = false;}
+	}
+	
+}
+class ItemStat extends FlxSpriteGroup 
+{
+	var text:FlxText;
+	var name:String;
+	var where:Dynamic;
+
+	public function new(Y,nam:String,w:Dynamic,?type:String) {
+		super(0,0);
+
+		this.name = nam;
+		where = w;
+
+		 text = new FlxText(0,((Y + (type == "status" ? 0 : PlayState.listNoteStatus.length)) * 50) + 200,0,name,25);
+		 text.font = Backend.font;
+
+
+		 var value = Reflect.field(where,name.toLowerCase());
+
+		 switch (name)
+		 {
+			case "BEST":
+				text.color = FlxColor.CYAN;
+			case "GOOD":
+				text.color = FlxColor.LIME;
+			case "BAD":
+				text.color = FlxColor.RED;
+			case "WORST":
+				text.color = FlxColor.GRAY;
+		 }
+
+		 text.text = '$name:' + value;
+		 add(text);
+	}
+	override function update(elapsed:Float) {
+		super.update(elapsed);
+		var value = Reflect.field(where,name.toLowerCase());
+		text.text = '$name:' + value;
 	}
 	
 }
